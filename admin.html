@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tsum Tsum - Ultimate Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; background: #111; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .admin-card { background: #222; padding: 30px; border-radius: 20px; border: 2px solid #ff4081; width: 340px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        h1 { color: #ff4081; text-align: center; margin-bottom: 20px; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }
+        .section-title { font-size: 12px; color: #ff4081; margin-top: 20px; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: #aaa; }
+        input[type="number"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #000; color: #ffd700; font-size: 16px; font-weight: bold; box-sizing: border-box; }
+        
+        .cheat-toggle { display: flex; justify-content: space-between; align-items: center; background: #333; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .cheat-toggle span { font-size: 14px; font-weight: bold; }
+        
+        /* Switch design */
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ff4081; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        button { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-save { background: #ff4081; color: white; }
+        .btn-max { background: #ffd700; color: #000; }
+        .btn-reset { background: #444; color: #ccc; margin-top: 20px; font-size: 11px; }
+        .status-msg { text-align: center; margin-top: 15px; font-size: 14px; height: 20px; color: #4caf50; font-weight: bold; }
+        .nav-links { margin-top: 20px; text-align: center; }
+        .nav-links a { color: #70D6FF; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="admin-card">
+    <h1>ULTIMATE ADMIN</h1>
+    
+    <div class="section-title">CURRENCY CONTROL</div>
+    <div class="input-group">
+        <label>累計コイン数</label>
+        <input type="number" id="coinInput">
+    </div>
+    <button class="btn-max" id="maxBtn">COIN MAX (99,999,999)</button>
+
+    <div class="section-title">GAME CHEATS</div>
+    
+    <div class="cheat-toggle">
+        <span>スコア100倍モード</span>
+        <label class="switch">
+            <input type="checkbox" id="scoreCheat">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="cheat-toggle">
+        <span>ボム大量発生(3個で発生)</span>
+        <label class="switch">
+            <input type="checkbox" id="bombCheat">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="cheat-toggle">
+        <span>全おなじツム固定</span>
+        <label class="switch">
+            <input type="checkbox" id="oneColorCheat">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <button class="btn-save" id="saveBtn">APPLY ALL CHANGES</button>
+    <div id="status" class="status-msg"></div>
+
+    <button class="btn-reset" id="resetBtn">FACTORY RESET</button>
+
+    <div class="nav-links">
+        <a href="index.html">← BACK TO GAME</a>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEYS = {
+        coins: 'tsum_total_coins',
+        scoreMult: 'cheat_score_mult',
+        bomb: 'cheat_bomb_mode',
+        oneColor: 'cheat_one_color'
+    };
+
+    function loadSettings() {
+        document.getElementById('coinInput').value = localStorage.getItem(STORAGE_KEYS.coins) || 0;
+        document.getElementById('scoreCheat').checked = localStorage.getItem(STORAGE_KEYS.scoreMult) === '100';
+        document.getElementById('bombCheat').checked = localStorage.getItem(STORAGE_KEYS.bomb) === 'true';
+        document.getElementById('oneColorCheat').checked = localStorage.getItem(STORAGE_KEYS.oneColor) === 'true';
+    }
+
+    function showStatus(msg) {
+        const status = document.getElementById('status');
+        status.innerText = msg;
+        setTimeout(() => { status.innerText = ''; }, 2000);
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+        // コイン保存
+        localStorage.setItem(STORAGE_KEYS.coins, document.getElementById('coinInput').value);
+        // スコア倍率
+        localStorage.setItem(STORAGE_KEYS.scoreMult, document.getElementById('scoreCheat').checked ? '100' : '1');
+        // ボムモード
+        localStorage.setItem(STORAGE_KEYS.bomb, document.getElementById('bombCheat').checked ? 'true' : 'false');
+        // ツム固定
+        localStorage.setItem(STORAGE_KEYS.oneColor, document.getElementById('oneColorCheat').checked ? 'true' : 'false');
+        
+        showStatus('SYSTEM UPDATED!');
+    });
+
+    document.getElementById('maxBtn').addEventListener('click', () => {
+        document.getElementById('coinInput').value = 99999999;
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        if (confirm('全てのデータを消去しますか？')) {
+            localStorage.clear();
+            loadSettings();
+            showStatus('ALL DATA PURGED');
+        }
+    });
+
+    loadSettings();
+</script>
+</body>
+</html>
